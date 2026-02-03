@@ -7,7 +7,7 @@ class GetPokemonListUseCase(
     private val repository: PokemonRepository
 ) {
 
-    operator fun invoke(): List<PokemonItem> {
+    suspend operator fun invoke(): List<PokemonItem> {
         return repository.getPokemonList()
     }
 }

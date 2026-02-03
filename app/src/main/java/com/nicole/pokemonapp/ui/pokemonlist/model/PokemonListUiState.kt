@@ -12,3 +12,8 @@ data class PokemonListUiState(
         )
     }
 }
+
+fun List<PokemonItem>.toUiState(): PokemonListUiState {
+    return PokemonListUiState(
+        list = this)
+}
