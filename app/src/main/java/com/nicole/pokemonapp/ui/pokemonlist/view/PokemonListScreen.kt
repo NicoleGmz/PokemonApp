@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -16,12 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import com.nicole.domain.list.model.PokemonItem
 import com.nicole.pokemonapp.ui.pokemonlist.PokemonListViewModel
 
@@ -59,16 +56,9 @@ fun PokemonCard(pokemon: PokemonItem) {
             modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = pokemon.id.toString())
-            Spacer(modifier = Modifier.size(8.dp))
             Text(text = pokemon.name)
             Spacer(modifier = Modifier.weight(1f))
-            AsyncImage(
-                model = pokemon.sprite,
-                contentDescription = pokemon.name,
-                modifier = Modifier.size(48.dp),
-                error = painterResource(id = android.R.drawable.stat_notify_error),
-            )
+            Text(text = pokemon.id.toString())
         }
     }
 }
@@ -76,12 +66,7 @@ fun PokemonCard(pokemon: PokemonItem) {
 @Preview
 @Composable
 fun PokemonCardPreview(){
-    val pokemonItem = PokemonItem(
-        "Pikachu",
-        25,
-        "",
-        ""
-    )
+    val pokemonItem = PokemonItem("Pikachu", 25)
     PokemonCard(pokemonItem)
 }
 
@@ -90,9 +75,9 @@ fun PokemonCardPreview(){
 @Composable
 fun PokemonListScreenPreview(){
     val mockData = listOf(
-        PokemonItem("Pikachu", 25, "", ""),
-        PokemonItem("Bulbasaur", 1, "", ""),
-        PokemonItem("Charmander", 4, "", "")
+        PokemonItem("Pikachu", 25),
+        PokemonItem("Bulbasaur", 1),
+        PokemonItem("Charmander", 4)
     )
     PokemonList(mockData)
 }
