@@ -1,6 +1,10 @@
 *.iml
 .gradle
+<<<<<<< HEAD
 .idea\
+=======
+.idea
+>>>>>>> parent of 5222b5a (Update .gitignore)
 /local.properties
 /.idea/caches
 /.idea/libraries
