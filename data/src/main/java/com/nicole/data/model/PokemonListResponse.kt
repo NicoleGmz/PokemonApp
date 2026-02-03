@@ -11,10 +11,7 @@ data class PokemonListResponse(
 
 data class PokemonListItem(
     val name: String,
-    val url: String,
-    val id: Int,
-    val sprite: String,
-    val image: String
+    val url: String
 ) {
 
 }
