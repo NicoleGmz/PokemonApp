@@ -1,7 +1,11 @@
 *.iml
 .gradle
 <<<<<<< HEAD
+<<<<<<< HEAD
 .idea\
+=======
+.idea
+>>>>>>> parent of 5222b5a (Update .gitignore)
 =======
 .idea
 >>>>>>> parent of 5222b5a (Update .gitignore)
