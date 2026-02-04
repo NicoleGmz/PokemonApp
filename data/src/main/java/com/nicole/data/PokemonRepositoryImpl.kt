@@ -6,17 +6,16 @@ import com.nicole.domain.list.model.PokemonItem
 import javax.inject.Inject
 
 class PokemonRepositoryImpl @Inject constructor(
-    private val remoteDataSource: RemoteDataSource,
-    private val localDataSource: LocalDataSource,
     private val api: PokemonApi
 ) : PokemonRepository {
 
     override suspend fun getPokemonList(): List<PokemonItem>{
         return try {
             println("Getting pokemon list")
-            api.getPokemonList().results.map {
-                println(it.name)
-                println(it.url)
+            api.getPokemonList(
+                limit = 151,
+                offset = 0
+            ).results.map {
                 it.toDomain()
             }
         }catch (e: Exception){
@@ -26,6 +25,6 @@ class PokemonRepositoryImpl @Inject constructor(
     }
 
     override fun getPokemonById(id: Int): PokemonItem? {
-        return localDataSource.getPokemonById(id)
+        TODO("Not yet implemented")
     }
 }

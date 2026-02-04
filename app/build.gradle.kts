@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.compose.material3)
     implementation(libs.material.extended.icons)
+    implementation(libs.coil)
+    implementation(libs.coil.network)
 
     // Hilt
     implementation(libs.hilt.android)
