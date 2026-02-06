@@ -29,31 +29,34 @@ import com.nicole.pokemonapp.ui.pokemonlist.PokemonListViewModel
 @Composable
 fun PokemonListScreen(
     modifier: Modifier = Modifier,
+    onPokemonClicked: (id: Int) -> Unit,
     viewModel: PokemonListViewModel = hiltViewModel()
 ) {
     // Screen content
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
-    PokemonList(pokemonList = uiState.value.list)
+    PokemonList(pokemonList = uiState.value.list, onPokemonClicked = onPokemonClicked)
 }
 
 @Composable
 fun PokemonList(
-    pokemonList: List<PokemonItem>
+    pokemonList: List<PokemonItem>,
+    onPokemonClicked: (id: Int) -> Unit
 ){
     LazyColumn(
         modifier = Modifier.fillMaxWidth().padding(8.dp),    ){
         items(pokemonList){
-            PokemonCard(pokemon = it)
+            PokemonCard(pokemon = it, onClick = onPokemonClicked)
         }
     }
 }
 
 @Composable
-fun PokemonCard(pokemon: PokemonItem) {
+fun PokemonCard(pokemon: PokemonItem, onClick: (id: Int) -> Unit) {
     Card(
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier.padding(8.dp).fillMaxWidth(),
+        onClick = { onClick(pokemon.id) }
     ) {
         Row(
             modifier = Modifier.padding(8.dp),
@@ -77,7 +80,7 @@ fun PokemonCard(pokemon: PokemonItem) {
 @Composable
 fun PokemonCardPreview(){
     val pokemonItem = PokemonItem("Pikachu", 25, "")
-    PokemonCard(pokemonItem)
+    PokemonCard(pokemonItem, {})
 }
 
 
@@ -89,5 +92,5 @@ fun PokemonListScreenPreview(){
         PokemonItem("Bulbasaur", 1, ""),
         PokemonItem("Charmander", 4, "")
     )
-    PokemonList(mockData)
+    PokemonList(mockData,{})
 }

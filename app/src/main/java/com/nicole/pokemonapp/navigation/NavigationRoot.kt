@@ -14,6 +14,9 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.nicole.pokemonapp.ui.pokemondetail.view.PokemonDetailScreen
+import com.nicole.pokemonapp.ui.pokemonlist.view.PokemonListScreen
+import com.nicole.pokemonapp.ui.welcome.WelcomeScreen
 
 /**
  * The top-level Composable that hosts the application's navigation graph using Navigation 3.
@@ -32,19 +35,27 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
         ),
         entryProvider = entryProvider {
 
-            // --- Initial Screen ---
             entry<Route.Welcome> {
-                // TODO: Add your Welcome Composable here
+                WelcomeScreen(
+                    onContinueClicked = {
+                        backStack.add(Route.PokemonList)
+                    }
+                )
             }
 
-            /* // Example for List-Detail pattern:
-            entry<Route.ExampleList>(
-                metadata = ListDetailSceneStrategy.listPane()
-            ) { 
-                // ListScreen(onItemClick = { backStack.add(Route.ExampleDetail(it)) })
+            entry<Route.PokemonList> {
+                PokemonListScreen(
+                    onPokemonClicked = { id ->
+                        backStack.add(Route.PokemonDetail(id))
+                    }
+                )
             }
-            */
+
+            entry<Route.PokemonDetail> {
+                PokemonDetailScreen()
+            }
         },
+
         transitionSpec = {
             ContentTransform(
                 targetContentEnter = slideInHorizontally(tween(400)) { it } + fadeIn(tween(400)),
