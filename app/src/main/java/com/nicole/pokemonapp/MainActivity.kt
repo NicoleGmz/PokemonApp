@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.nicole.pokemonapp.navigation.NavigationHost
+import com.nicole.pokemonapp.navigation.NavigationRoot
 import com.nicole.pokemonapp.ui.theme.PokemonAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             PokemonAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    NavigationHost(modifier = Modifier.padding(innerPadding))
+                    NavigationRoot(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

@@ -16,5 +16,8 @@ sealed interface Route: NavKey {
     data object PokemonList: Route
 
     @Serializable
-    data object PokemonDetail: Route
+    data class PokemonDetail(
+        val pokemonId: Int
+    ): Route
+
 }
