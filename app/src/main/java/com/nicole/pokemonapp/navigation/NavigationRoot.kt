@@ -9,11 +9,13 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.nicole.pokemonapp.ui.pokemondetail.PokemonDetailViewModel
 import com.nicole.pokemonapp.ui.pokemondetail.view.PokemonDetailScreen
 import com.nicole.pokemonapp.ui.pokemonlist.view.PokemonListScreen
 import com.nicole.pokemonapp.ui.welcome.WelcomeScreen
@@ -46,13 +48,19 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
             entry<Route.PokemonList> {
                 PokemonListScreen(
                     onPokemonClicked = { id ->
+                        println("id: $id")
                         backStack.add(Route.PokemonDetail(id))
                     }
                 )
             }
 
-            entry<Route.PokemonDetail> {
-                PokemonDetailScreen()
+            entry<Route.PokemonDetail> { key ->
+                val viewModel = hiltViewModel<PokemonDetailViewModel, PokemonDetailViewModel.Factory>(
+                    creationCallback = { factory ->
+                        factory.create(key.pokemonId)
+                    }
+                )
+                PokemonDetailScreen(viewModel = viewModel)
             }
         },
 
