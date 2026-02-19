@@ -1,12 +1,23 @@
 package com.nicole.pokemonapp.ui.pokemondetail.model
 
+import com.nicole.domain.detail.model.PokemonDetail
+
 data class PokemonDetailUiState(
-    val name: String
+    val pokemonDetail: PokemonDetail
 ) {
     companion object {
         val DEFAULT = PokemonDetailUiState(
-            name = ""
+            pokemonDetail = PokemonDetail.DEFAULT
         )
     }
 }
+
+fun PokemonDetail.toUiState(): PokemonDetailUiState {
+    println("pokemon: $this")
+    return PokemonDetailUiState(
+        pokemonDetail = this
+    )
+}
+
+
     

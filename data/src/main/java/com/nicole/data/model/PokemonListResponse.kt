@@ -1,19 +1,17 @@
 package com.nicole.data.model
 
-data class PokemonListResponse(
-    val count: Int,
-    val next: String?,
-    val previous: String?,
-    val results: List<PokemonListItem>
-) {
+import com.google.gson.annotations.SerializedName
 
-}
+data class PokemonListResponse(
+    @SerializedName("count") val count: Int,
+    @SerializedName("next") val next: String?,
+    @SerializedName("previous") val previous: String?,
+    @SerializedName("results") val results: List<PokemonListItem>
+)
 
 data class PokemonListItem(
-    val name: String,
-    val url: String,
+    @SerializedName("name") val name: String,
+    @SerializedName("url") val url: String,
     val id: Int,
     val sprite: String
-) {
-
-}
+)

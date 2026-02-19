@@ -5,13 +5,17 @@ data class PokemonDetail(
     val name: String,
     val height: Int,
     val weight: Int,
+    val sprite: String,
+    val types: List<String>
 ){
     companion object{
         val DEFAULT = PokemonDetail(
             id = 0,
             name = "",
             height = 0,
-            weight = 0
+            weight = 0,
+            sprite = "",
+            types = emptyList()
         )
     }
 }
