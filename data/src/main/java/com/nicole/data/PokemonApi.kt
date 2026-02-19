@@ -2,6 +2,7 @@ package com.nicole.data
 
 import com.nicole.data.model.PokemonDetailResponse
 import com.nicole.data.model.PokemonListResponse
+import com.nicole.data.model.PokemonSpeciesResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -19,4 +20,8 @@ interface PokemonApi {
         @Path("id") id: Int
     ): PokemonDetailResponse
 
+    @GET("pokemon-species/{id}")
+    suspend fun getPokemonSpeciesById(
+        @Path("id") id: Int
+    ): PokemonSpeciesResponse
 }

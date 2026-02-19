@@ -19,11 +19,12 @@ fun PokemonDetailResponse.toDomain(): PokemonDetail{
         name = name.replaceFirstChar { it.uppercase() },
         height = height,
         weight = weight,
-        sprite = sprites.frontDefault ?: "",
+        sprite = sprites.other.officialArtwork.frontDefault,
         types = types.map {
             it.type.name.replaceFirstChar { name ->
                 name.uppercase() }
-        }
+        },
+        generation = ""
     )
 }
 

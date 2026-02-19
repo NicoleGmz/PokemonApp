@@ -28,9 +28,16 @@ class PokemonRepositoryImpl @Inject constructor(
 
     override suspend fun getPokemonById(id: Int): PokemonDetail {
         return try {
-            api.getPokemonById(id).toDomain()
+            println("Getting pokemon $id")
+            val pokemon = api.getPokemonById(id).toDomain()
+            val generation = api.getPokemonSpeciesById(id).generation.url
+            pokemon.copy(generation = getGenerationFromUrl(generation))
         }catch (e: Exception){
             PokemonDetail.DEFAULT
         }
+    }
+
+    fun getGenerationFromUrl(url: String): String{
+        return url.split("/").dropLast(1).last()
     }
 }

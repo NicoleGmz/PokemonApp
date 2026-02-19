@@ -61,7 +61,9 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
                         factory.create(key.pokemonId)
                     }
                 )
-                PokemonDetailScreen(viewModel = viewModel)
+                PokemonDetailScreen(viewModel = viewModel, onBackClicked = {
+                    backStack.removeLastOrNull()
+                })
             }
         },
 
