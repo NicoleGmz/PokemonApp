@@ -7,9 +7,8 @@ class GetPokemonDetailUseCase(
     private val repository: PokemonRepository
 ) {
 
-    operator fun invoke(): PokemonDetail{
-        return PokemonDetail.DEFAULT
-        TODO("Not yet implemented")
-        //return repository.getPokemonById(id) ?: PokemonDetail.DEFAULT
+    suspend operator fun invoke(id: Int): PokemonDetail{
+    //    val pokemon = repository.getPokemonById(id)
+        return repository.getPokemonById(id)
     }
 }

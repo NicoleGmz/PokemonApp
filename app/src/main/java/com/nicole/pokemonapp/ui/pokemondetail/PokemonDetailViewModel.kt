@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.nicole.domain.detail.usecase.GetPokemonDetailUseCase
 import com.nicole.pokemonapp.navigation.Route
 import com.nicole.pokemonapp.ui.pokemondetail.model.PokemonDetailUiState
+import com.nicole.pokemonapp.ui.pokemondetail.model.toUiState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -32,8 +33,7 @@ class PokemonDetailViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            println("id: $id")
-           // _uiState.value = getPokemonDetail(id)
+            _uiState.value = getPokemonDetail(id).toUiState()
         }
     }
 }
