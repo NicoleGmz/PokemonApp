@@ -1,15 +1,21 @@
 package com.nicole.pokemonapp.ui.pokemondetail.view
 
 import android.R
+import android.health.connect.datatypes.units.Percentage
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,6 +24,9 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -25,6 +34,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.nicole.domain.detail.model.PokemonDetail
 import com.nicole.pokemonapp.ui.pokemondetail.PokemonDetailViewModel
+import com.nicole.pokemonapp.ui.pokemondetail.model.PokemonDetailUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +58,9 @@ fun PokemonDetailScreen(
 ) {
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-    val pokemonDetail = uiState.value.pokemonDetail
+    val pokemonDetail = uiState.value
+
+
     // Screen content
     //PokemonDetailComponent(pokemonDetail = uiState.value.pokemonDetail, onBackClicked = onBackClicked)
     Scaffold(
@@ -90,7 +104,7 @@ fun PokemonDetailScreen(
 
 @Composable
 fun PokemonDetailComponent(
-    pokemonDetail: PokemonDetail
+    pokemonDetail: PokemonDetailUiState
 ) {
     Column(
         modifier = Modifier
@@ -131,6 +145,8 @@ fun PokemonDetailComponent(
             DetailRow("Weight", pokemonDetail.weight.toString())
             DetailRow("Generation", pokemonDetail.generation)
             DetailRow("Types", pokemonDetail.types.joinToString(", "))
+
+            PokemonStatsComponent(pokemonDetail.stats)
         }
     }
 }
@@ -157,19 +173,93 @@ fun DetailRow(label: String, value: String) {
     }
 }
 
+@Composable
+fun PokemonStatsComponent(
+    pokemonStat: List<List<String>>,
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 16.dp),
+    ){
+        Column() {
+            Text("Basic Stats: ")
+
+            Spacer(modifier = Modifier.size(8.dp))
+
+            for (stat in pokemonStat) {
+                PokemonStatBar(stat[0], stat[1].toInt(), stat[2].toFloat() )
+            }
+        }
+    }
+
+}
+
+
+
+@Composable
+fun PokemonStatBar(
+    statName: String,
+    statValue: Int,
+    percentageValue: Float
+){
+    val statColor = MaterialTheme.colorScheme.primary
+
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = statName)
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(text = statValue.toString())
+        Spacer(modifier = Modifier.size(8.dp))
+        Box(
+            modifier = Modifier
+                .weight(0.55f)
+                .height(10.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray.copy(alpha = 0.5f))
+        ) {
+            // 4. The Foreground Bar (Filled Track)
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(percentageValue) // Width is controlled by the animation
+                    .clip(CircleShape)
+                    .background(statColor)
+            )
+        }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PokemonStatBarPreview() {
+    PokemonStatBar(
+        "HP",
+        100,
+        255.0f
+    )
+}
+
 
 @Preview(showBackground = true)
 @Composable
 fun PokemonDetailComponentPreview() {
     PokemonDetailComponent(
-        pokemonDetail = PokemonDetail(
+        pokemonDetail = PokemonDetailUiState(
             id = 1,
             name = "Pikachu",
             height = 50,
             weight = 100,
             sprite = "",
             types = listOf("Electric"),
-            generation = ""
+            generation = "",
+            stats = listOf(
+                listOf("HP", "100", "255"),
+            )
         )
     )
 }

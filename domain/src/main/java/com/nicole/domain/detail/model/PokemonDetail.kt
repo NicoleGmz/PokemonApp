@@ -7,7 +7,8 @@ data class PokemonDetail(
     val weight: Int,
     val sprite: String?,
     val types: List<String>,
-    val generation: String
+    val generation: String,
+    val stats: HashMap<String, Int> = hashMapOf()
 ){
     companion object{
         val DEFAULT = PokemonDetail(
@@ -17,7 +18,8 @@ data class PokemonDetail(
             weight = 0,
             sprite = "",
             types = emptyList(),
-            generation = ""
+            generation = "",
+            stats = hashMapOf()
         )
     }
 }
