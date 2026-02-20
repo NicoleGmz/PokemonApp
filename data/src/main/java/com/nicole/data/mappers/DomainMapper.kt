@@ -24,7 +24,10 @@ fun PokemonDetailResponse.toDomain(): PokemonDetail{
             it.type.name.replaceFirstChar { name ->
                 name.uppercase() }
         },
-        generation = ""
+        generation = "",
+        stats = stats.associate {
+            it.stat.name to it.baseStat
+        } as HashMap<String, Int>
     )
 }
 
