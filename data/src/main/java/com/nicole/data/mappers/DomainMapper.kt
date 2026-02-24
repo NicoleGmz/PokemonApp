@@ -10,7 +10,8 @@ fun PokemonListItem.toDomain(): PokemonItem{
         name = name.replaceFirstChar { it.uppercase() },
         id = getIdFromUrl(url),
         sprite = getSpriteFromId(getIdFromUrl(url)),
-        types = emptyList()
+        types = emptyList(),
+        generation = ""
     )
 }
 
@@ -38,4 +39,8 @@ fun getIdFromUrl(url: String): Int{
 
 fun getSpriteFromId(id: Int): String{
     return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"
+}
+
+fun generationFormat(generation: String): String{
+    return generation.split("-").joinToString(" ")
 }

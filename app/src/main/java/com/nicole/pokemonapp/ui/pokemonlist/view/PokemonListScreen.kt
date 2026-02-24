@@ -31,6 +31,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -70,24 +71,29 @@ fun PokemonListScreen(
     viewModel: PokemonListViewModel = hiltViewModel()
 ) {
 
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-    val searchQuery = viewModel.searchQuery.collectAsState()
-    val selectedTypes = viewModel.selectedTypes.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val selectedTypes by viewModel.selectedTypes.collectAsStateWithLifecycle()
+    val selectedGeneration by viewModel.selectedGeneration.collectAsStateWithLifecycle()
 
     val allTypes = listOf(
         "Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
         "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"
     )
 
-    Scaffold{ paddingValues ->
+    val allGeneration = listOf(
+        "Generation I", "Generation II", "Generation III", "Generation IV", "Generation V",
+        "Generation VI", "Generation VII", "Generation VIII", "Generation IX"
+    )
 
+    Scaffold{ paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             OutlinedTextField(
-                value = searchQuery.value,
+                value = searchQuery,
                 onValueChange = viewModel::onSearchQueryChanged,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,7 +102,7 @@ fun PokemonListScreen(
                     Icon(Icons.Default.Search, contentDescription = null)
                 },
                 trailingIcon = {
-                    if (searchQuery.value.isNotEmpty()) {
+                    if (searchQuery.isNotEmpty()) {
                         IconButton(
                             onClick = { viewModel.onSearchQueryChanged("") }
                         ) {
@@ -107,32 +113,27 @@ fun PokemonListScreen(
                 singleLine = true,
             )
 
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(allTypes) {
-                    FilterChip(
-                        selected = selectedTypes.value.contains(it),
-                        onClick = { viewModel.toggleTypeFilter(it) },
-                        label = {
-                            Text(text = it)
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        ),
-                        )
-                }
-            }
+            ExpandableFilterSelection(
+                title = "Type",
+                options = allTypes,
+                selectedOptions = selectedTypes,
+                onOptionSelected = viewModel::toggleTypeFilter
+            )
 
-            PokemonList(pokemonList = uiState.value.list, onPokemonClicked = onPokemonClicked)
+            HorizontalDivider( modifier = Modifier.padding(horizontal = 8.dp))
+
+            ExpandableFilterSelection(
+                title = "Generation",
+                options = allGeneration,
+                selectedOptions = selectedGeneration,
+                onOptionSelected = viewModel::toggleGenerationFilter
+            )
+
+            HorizontalDivider( modifier = Modifier.padding(horizontal = 8.dp))
+
+            PokemonList(pokemonList = uiState.list, onPokemonClicked = onPokemonClicked)
         }
-
     }
-
 }
 
 @Composable
@@ -197,14 +198,87 @@ fun PokemonCard(pokemon: PokemonItemUiState, onClick: (id: Int) -> Unit) {
     }
 }
 
-@Preview
+
+@Composable
+fun ExpandableFilterSelection(
+    title: String,
+    options: List<String>,
+    selectedOptions: Set<String> = emptySet(),
+    onOptionSelected: (String) -> Unit
+){
+    var expanded by remember { mutableStateOf(false) }
+
+    val summary = if (selectedOptions.isEmpty()) "All" else selectedOptions.joinToString(", ")
+
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(text = "$title:", fontWeight = FontWeight.SemiBold)
+
+                Text(
+                    text = summary,
+                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Icon(
+                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = Color.Gray
+            )
+        }
+
+        AnimatedVisibility(visible = expanded) {
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                //verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                options.forEach { option ->
+                    val isSelected = option in selectedOptions
+                    val chipColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { onOptionSelected(option) },
+                        label = {
+                            Text(text = option) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = chipColor,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Preview(showBackground = true)
 @Composable
 fun PokemonCardPreview(){
     val pokemonItem = PokemonItemUiState("Pikachu",
         25,
         "",
         listOf("Electric"),
-        "",
+        "Generation I",
         listOf(getPokemonTypeColor("Electric")),
         listOf(getPokemonTypeColor("Electric"), getPokemonTypeColor("Electric")))
     PokemonCard(pokemonItem, {})
@@ -215,13 +289,24 @@ fun PokemonCardPreview(){
 @Composable
 fun PokemonListScreenPreview(){
     val mockData = listOf(
-        PokemonItemUiState("Bulbasaur", 1, "", listOf("Grass"), "", listOf(getPokemonTypeColor("Grass"), getPokemonTypeColor("Poison")),
+        PokemonItemUiState("Bulbasaur", 1, "", listOf("Grass"), "Generation I", listOf(getPokemonTypeColor("Grass"), getPokemonTypeColor("Poison")),
             listOf(getPokemonTypeColor("Grass"), getPokemonTypeColor("Poison"))),
-        PokemonItemUiState("Charmander", 4, "", listOf("Fire"), "", listOf(getPokemonTypeColor("Fire")),
+        PokemonItemUiState("Charmander", 4, "", listOf("Fire"), "Generation I", listOf(getPokemonTypeColor("Fire")),
             listOf(getPokemonTypeColor("Fire"), getPokemonTypeColor("Fire"))),
-        PokemonItemUiState("Pikachu", 25, "", listOf("Electric"),"", listOf(getPokemonTypeColor("Electric")),
+        PokemonItemUiState("Pikachu", 25, "", listOf("Electric"),"Generation I", listOf(getPokemonTypeColor("Electric")),
             listOf(getPokemonTypeColor("Electric"), getPokemonTypeColor("Electric")))
     )
 
     PokemonList(mockData,{})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExpandableFilterSelectionPreview(){
+    ExpandableFilterSelection(
+        title = "Type",
+        options = listOf("Grass", "Poison", "Electric", "Fire"),
+        selectedOptions = setOf("Grass", "Poison"),
+        onOptionSelected = {}
+    )
 }

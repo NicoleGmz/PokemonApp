@@ -4,14 +4,16 @@ data class PokemonItem(
     val name: String,
     val id: Int,
     val sprite: String,
-    val types: List<String>
+    val types: List<String>,
+    val generation: String
 ){
     companion object{
         val DEFAULT = PokemonItem(
             name = "",
             id = 0,
             sprite = "",
-            types = emptyList()
+            types = emptyList(),
+            generation = ""
         )
     }
 }

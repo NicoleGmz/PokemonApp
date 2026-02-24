@@ -23,25 +23,25 @@ class PokemonListViewModel @Inject constructor(
     private val _allPokemon = MutableStateFlow(PokemonListUiState.DEFAULT)
 
     private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
     private val _selectedTypes = MutableStateFlow(emptySet<String>())
 
-    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
     val selectedTypes: StateFlow<Set<String>> = _selectedTypes.asStateFlow()
+
+    private val _selectedGeneration = MutableStateFlow(emptySet<String>())
+    val selectedGeneration: StateFlow<Set<String>> = _selectedGeneration.asStateFlow()
 
     //private val _uiState = MutableStateFlow(PokemonListUiState.DEFAULT)
     val uiState: StateFlow<PokemonListUiState> = combine(
         _allPokemon,
         _searchQuery,
-        _selectedTypes
-    ) { allPokemon, query, types ->
-        if (query.isBlank() && types.isEmpty()) {
+        _selectedTypes,
+        _selectedGeneration
+    ) { allPokemon, query, types, generations ->
+        /*if (query.isBlank() && types.isEmpty() && generations.isEmpty()) {
             PokemonListUiState(allPokemon.list)
-        } else {
-            /*val filteredPokemon = allPokemon.list.filter { pokemon ->
-                pokemon.name.contains(searchQuery, ignoreCase = true)
-                        && (!selectedTypes.isEmpty() || pokemon.types.any { it in selectedTypes })
-            }*/
-
+        } else {*/
             var filteredPokemon = allPokemon.list
 
             if(query.isNotBlank()){
@@ -53,13 +53,26 @@ class PokemonListViewModel @Inject constructor(
 
             if(types.isNotEmpty()){
                 filteredPokemon = filteredPokemon.filter { pokemon ->
-                    pokemon.types.any { it in types }
+                    types.all { selectedType ->
+                        pokemon.types.any { it == selectedType }
+                    }
+                   // pokemon.types.all { it in types }
+                }
+            }
+
+            if(generations.isNotEmpty()){
+                filteredPokemon = filteredPokemon.filter { pokemon ->
+                    pokemon.generation in generations
                 }
             }
 
             PokemonListUiState(filteredPokemon)
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PokemonListUiState.DEFAULT)
+        //}
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        PokemonListUiState.DEFAULT
+    )
 
     init{
         viewModelScope.launch {
@@ -75,6 +88,12 @@ class PokemonListViewModel @Inject constructor(
     fun toggleTypeFilter(type: String) {
         _selectedTypes.value = _selectedTypes.value.toMutableSet().apply {
             if (contains(type)) remove(type) else add(type)
+        }
+    }
+
+    fun toggleGenerationFilter(generation: String) {
+        _selectedGeneration.value = _selectedGeneration.value.toMutableSet().apply {
+            if (contains(generation)) remove(generation) else add(generation)
         }
     }
 

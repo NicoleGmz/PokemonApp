@@ -25,7 +25,10 @@ class PokemonRepositoryImpl @Inject constructor(
                             println("Getting pokemon ${pokemonListItem.name}")
                             println(pokemon)
                             val pokemonDetail = getPokemonById(pokemon.id)
-                            pokemon.copy(types = pokemonDetail.types)
+                            pokemon.copy(
+                                types = pokemonDetail.types,
+                                generation = pokemonDetail.generation
+                            )
                         } catch (e: Exception) {
                             println("Failed to fetch types for ${pokemonListItem.name}: ${e.message}")
                             pokemon
@@ -42,12 +45,19 @@ class PokemonRepositoryImpl @Inject constructor(
     override suspend fun getPokemonById(id: Int): PokemonDetail = try {
             println("Getting pokemon $id")
             val pokemon = api.getPokemonById(id).toDomain()
-            val generation = api.getPokemonSpeciesById(id).generation.url
-            pokemon.copy(generation = getGenerationFromUrl(generation))
+            val generation = api.getPokemonSpeciesById(id).generation.name
+            pokemon.copy(generation = formatGenerationName(generation))
         }catch (e: Exception){
+            println("Error getting pokemon $id: ${e.message}")
             PokemonDetail.DEFAULT
         }
 
     private fun getGenerationFromUrl(url: String): String = url.split("/").dropLast(1).last()
-    
+
+    private fun formatGenerationName(generation: String): String = generation
+        .split("-")
+        .joinToString(" "){ word ->
+            word.replaceFirstChar { it.uppercase() }
+        }
+
 }

@@ -25,7 +25,7 @@ data class PokemonListUiState(
 }
 
 fun List<PokemonItem>.toUiState(): PokemonListUiState {
-    println("toUiState: $this")
+    //println("toUiState: $this")
     return PokemonListUiState(
         list = this.map { it.toUiState() }
     )
@@ -40,13 +40,13 @@ fun PokemonItem.toUiState(): PokemonItemUiState {
         else -> typeColor
     }
 
-    println(gradientColor)
+    //println(gradientColor)
     return PokemonItemUiState(
         name = name,
         id = id,
         sprite = sprite,
         types = types,
-        generation = "",
+        generation = generation,
         typeColor = typeColor,
         gradientColor = gradientColor
     )
