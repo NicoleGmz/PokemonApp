@@ -1,6 +1,5 @@
 package com.nicole.pokemonapp.ui.pokemondetail.view
 
-import android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +17,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.nicole.pokemonapp.R
 import com.nicole.pokemonapp.ui.pokemondetail.PokemonDetailViewModel
 import com.nicole.pokemonapp.ui.pokemondetail.model.PokemonDetailUiState
 import com.nicole.pokemonapp.ui.theme.getPokemonTypeColor
@@ -79,7 +83,6 @@ fun PokemonDetailScaffold(
     pokemonDetail: PokemonDetailUiState,
     onBackClicked: () -> Unit
 ){
-    val mainType = pokemonDetail.types.firstOrNull() ?: "normal"
     val typeColor = pokemonDetail.types.map { getPokemonTypeColor(it) }
     val gradientColor = if (typeColor.size == 1){
         listOf(typeColor.first(), typeColor.first())
@@ -159,7 +162,7 @@ fun PokemonDetailComponent(
             modifier = Modifier
                 .size(200.dp)
                 .padding(8.dp),
-            error = painterResource(id = R.drawable.stat_notify_error),
+            error = rememberVectorPainter(image = Icons.Outlined.Error),
         )
 
         Column(
