@@ -22,9 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PokemonAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    NavigationRoot(modifier = Modifier.padding(innerPadding))
-                }
+                NavigationRoot()
             }
         }
     }

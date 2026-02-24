@@ -9,7 +9,8 @@ fun PokemonListItem.toDomain(): PokemonItem{
     return PokemonItem(
         name = name.replaceFirstChar { it.uppercase() },
         id = getIdFromUrl(url),
-        sprite = getSpriteFromId(getIdFromUrl(url))
+        sprite = getSpriteFromId(getIdFromUrl(url)),
+        types = emptyList()
     )
 }
 

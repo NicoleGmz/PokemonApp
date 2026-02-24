@@ -34,6 +34,8 @@ class PokemonDetailViewModel @AssistedInject constructor(
     init {
         viewModelScope.launch {
             _uiState.value = getPokemonDetail(id).toUiState()
+            println("PokemonDetailViewModel: $id")
+            println("PokemonDetailViewModel: ${_uiState.value}")
         }
     }
 }
