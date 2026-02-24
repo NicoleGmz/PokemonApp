@@ -16,13 +16,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,7 +55,30 @@ fun PokemonListScreen(
 ) {
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-    PokemonList(pokemonList = uiState.value.list, onPokemonClicked = onPokemonClicked)
+    val searchQuery = viewModel.searchQuery.collectAsState()
+
+    Scaffold{ paddingValues ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            OutlinedTextField(
+                value = searchQuery.value,
+                onValueChange = viewModel::onSearchQueryChanged,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = null)
+                },
+                singleLine = true,
+            )
+            PokemonList(pokemonList = uiState.value.list, onPokemonClicked = onPokemonClicked)
+        }
+
+    }
 
 }
 
