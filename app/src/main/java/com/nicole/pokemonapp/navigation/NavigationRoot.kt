@@ -41,6 +41,8 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
             entry<Route.Welcome> {
                 WelcomeScreen(
                     onContinueClicked = {
+                        //backStack.removeLast() do the same but seems that it's a new thing and
+                        backStack.removeAt(backStack.lastIndex)
                         backStack.add(Route.PokemonList)
                     }
                 )
