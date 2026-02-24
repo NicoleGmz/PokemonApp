@@ -17,12 +17,14 @@ class PokemonListViewModel @Inject constructor(
     private val getPokemonList: GetPokemonListUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<PokemonListUiState>(PokemonListUiState.DEFAULT)
+    private val _uiState = MutableStateFlow(PokemonListUiState.DEFAULT)
     val uiState: StateFlow<PokemonListUiState> = _uiState.asStateFlow()
 
     init{
         viewModelScope.launch {
             _uiState.value = getPokemonList().toUiState()
+            println("PokemonListViewModel init")
+            println(_uiState.value)
         }
     }
 

@@ -1,7 +1,6 @@
 package com.nicole.pokemonapp.ui.pokemondetail.view
 
 import android.R
-import android.health.connect.datatypes.units.Percentage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,22 +18,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -46,9 +43,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.nicole.domain.detail.model.PokemonDetail
 import com.nicole.pokemonapp.ui.pokemondetail.PokemonDetailViewModel
 import com.nicole.pokemonapp.ui.pokemondetail.model.PokemonDetailUiState
+import com.nicole.pokemonapp.ui.theme.getPokemonTypeColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,9 +57,36 @@ fun PokemonDetailScreen(
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val pokemonDetail = uiState.value
 
+    if (pokemonDetail == PokemonDetailUiState.DEFAULT){
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column() {
+                Text(text = "Loading...")
+                Spacer(modifier = Modifier.size(16.dp))
+                CircularProgressIndicator()
+            }
+        }
+    }else {
+        PokemonDetailScaffold(pokemonDetail = pokemonDetail, onBackClicked = onBackClicked)
+    }
+}
 
-    // Screen content
-    //PokemonDetailComponent(pokemonDetail = uiState.value.pokemonDetail, onBackClicked = onBackClicked)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PokemonDetailScaffold(
+    pokemonDetail: PokemonDetailUiState,
+    onBackClicked: () -> Unit
+){
+    val mainType = pokemonDetail.types.firstOrNull() ?: "normal"
+    val typeColor = pokemonDetail.types.map { getPokemonTypeColor(it) }
+    val gradientColor = if (typeColor.size == 1){
+        listOf(typeColor.first(), typeColor.first())
+    }else{
+        typeColor
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -73,7 +97,9 @@ fun PokemonDetailScreen(
                         fontSize = 16.sp
                     )
                 },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(gradientColor[0]),
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
                         Icon(
@@ -82,25 +108,25 @@ fun PokemonDetailScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors()
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.padding(paddingValues).fillMaxSize(),
+            modifier = Modifier.padding(paddingValues).fillMaxSize().background(brush = Brush.verticalGradient(gradientColor)),
             contentAlignment = Alignment.TopStart
         ) {
-            if (pokemonDetail == PokemonDetail.DEFAULT) {
-                Text(
-                    text = "Loading...",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }else{
-                PokemonDetailComponent(pokemonDetail = pokemonDetail)
-            }
+
+            PokemonDetailComponent(pokemonDetail = pokemonDetail)
+
         }
     }
 }
+
 
 @Composable
 fun PokemonDetailComponent(
