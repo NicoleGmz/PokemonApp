@@ -46,7 +46,7 @@ class PokemonListViewModel @Inject constructor(
 
             if(query.isNotBlank()){
                 filteredPokemon = filteredPokemon.filter { pokemon ->
-                    pokemon.name.contains(query, ignoreCase = true)
+                    pokemon.name.contains(query, ignoreCase = true) ||
                     pokemon.id.toString().contains(query)
                 }
             }
