@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -27,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,14 +46,13 @@ import com.nicole.pokemonapp.ui.theme.getPokemonTypeColor
 @Suppress("ParamsComparedByRef")
 @Composable
 fun PokemonListScreen(
-    modifier: Modifier = Modifier,
     onPokemonClicked: (id: Int) -> Unit,
     viewModel: PokemonListViewModel = hiltViewModel()
 ) {
-    // Screen content
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     PokemonList(pokemonList = uiState.value.list, onPokemonClicked = onPokemonClicked)
+
 }
 
 @Composable
@@ -107,7 +111,7 @@ fun PokemonCard(pokemon: PokemonItemUiState, onClick: (id: Int) -> Unit) {
                 model = pokemon.sprite,
                 contentDescription = pokemon.name,
                 modifier = Modifier.size(48.dp),
-                error = painterResource(id = android.R.drawable.stat_notify_error),
+                error = rememberVectorPainter(image = Icons.Outlined.Error),
             )
         }
     }
