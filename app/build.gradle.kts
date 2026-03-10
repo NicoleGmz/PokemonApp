@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.material.extended.icons)
     implementation(libs.coil)
     implementation(libs.coil.network)
+    implementation(libs.paging.compose)
 
     // Hilt
     implementation(libs.hilt.android)
