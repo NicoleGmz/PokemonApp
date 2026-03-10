@@ -33,6 +33,16 @@ fun PokemonDetailResponse.toDomain(): PokemonDetail{
     )
 }
 
+fun PokemonDetailResponse.toDomainListItem(): PokemonItem{
+    return PokemonItem(
+        name = name.replaceFirstChar { it.uppercase() },
+        id = id,
+        sprite = getSpriteFromId(id),
+        types = types.map { it.type.name },
+        generation = ""
+    )
+}
+
 fun getIdFromUrl(url: String): Int{
     return url.split("/").dropLast(1).last().toInt()
 }

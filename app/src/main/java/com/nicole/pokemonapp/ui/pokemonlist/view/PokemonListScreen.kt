@@ -58,6 +58,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.nicole.domain.list.model.PokemonItem
 import com.nicole.pokemonapp.ui.pokemonlist.PokemonListViewModel
@@ -75,6 +78,8 @@ fun PokemonListScreen(
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val selectedTypes by viewModel.selectedTypes.collectAsStateWithLifecycle()
     val selectedGeneration by viewModel.selectedGeneration.collectAsStateWithLifecycle()
+
+    val lazyPagingPokemonList = viewModel.pagedPokemonList.collectAsLazyPagingItems()
 
     val allTypes = listOf(
         "Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
@@ -131,37 +136,59 @@ fun PokemonListScreen(
 
             HorizontalDivider( modifier = Modifier.padding(horizontal = 8.dp))
 
-            PokemonList(pokemonList = uiState.list, onPokemonClicked = onPokemonClicked)
+            PokemonList(pokemonList = lazyPagingPokemonList, onPokemonClicked = onPokemonClicked)
+
+            if (lazyPagingPokemonList.loadState.refresh is LoadState.Loading && lazyPagingPokemonList.itemCount == 0) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }
 
 @Composable
 fun PokemonList(
-    pokemonList: List<PokemonItemUiState>,
+    pokemonList: LazyPagingItems<PokemonItemUiState>,
     onPokemonClicked: (id: Int) -> Unit
-){
-    if (pokemonList.isEmpty()){
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ){
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(text = "Loading...")
-                Spacer(modifier = Modifier.size(16.dp))
-                CircularProgressIndicator()
+) {
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+    ) {
+        items(
+            count = pokemonList.itemCount,
+            key = { index -> pokemonList[index]?.id ?: index }
+        ) { index ->
+            val pokemon = pokemonList[index]
+            if (pokemon != null) {
+                PokemonCard(pokemon, onPokemonClicked)
             }
         }
-    }else{
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),    ){
-            items(pokemonList){
-                PokemonCard(pokemon = it, onClick = onPokemonClicked)
+
+        if (pokemonList.loadState.append is LoadState.Loading) {
+            item {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = "Loading...")
+                        Spacer(modifier = Modifier.size(16.dp))
+                        CircularProgressIndicator()
+                    }
+                }
             }
         }
+
     }
 }
 
@@ -211,7 +238,9 @@ fun ExpandableFilterSelection(
     val summary = if (selectedOptions.isEmpty()) "All" else selectedOptions.joinToString(", ")
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp, 8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -297,7 +326,7 @@ fun PokemonListScreenPreview(){
             listOf(getPokemonTypeColor("Electric"), getPokemonTypeColor("Electric")))
     )
 
-    PokemonList(mockData,{})
+    //PokemonList(mockData,{})
 }
 
 @Preview(showBackground = true)

@@ -2,22 +2,32 @@ package com.nicole.pokemonapp.ui.pokemonlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
+import com.nicole.domain.list.usecase.GetPagePokemonListUseCase
 import com.nicole.domain.list.usecase.GetPokemonListUseCase
+import com.nicole.pokemonapp.ui.pokemonlist.model.PokemonItemUiState
 import com.nicole.pokemonapp.ui.pokemonlist.model.PokemonListUiState
 import com.nicole.pokemonapp.ui.pokemonlist.model.toUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PokemonListViewModel @Inject constructor(
-    private val getPokemonList: GetPokemonListUseCase
+    private val getPokemonList: GetPokemonListUseCase,
+    private val getPagedPokemonList: GetPagePokemonListUseCase
 ) : ViewModel() {
 
     private val _allPokemon = MutableStateFlow(PokemonListUiState.DEFAULT)
@@ -73,6 +83,25 @@ class PokemonListViewModel @Inject constructor(
         SharingStarted.WhileSubscribed(5000),
         PokemonListUiState.DEFAULT
     )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val pagedPokemonList: Flow<PagingData<PokemonItemUiState>> = combine(
+        _searchQuery,
+        _selectedTypes,
+        _selectedGeneration
+    ) { query, types, generations ->
+        Triple(query, types, generations)
+    }.flatMapLatest { (query, types, generations) ->
+        getPagedPokemonList(
+            searchQuery = query,
+            typeFilter = types.joinToString(","),
+            generationFilter = generations.joinToString(",")
+        ).map { pagingData ->
+            pagingData.map { pokemonItem ->
+                pokemonItem.toUiState()
+            }
+        }.cachedIn(viewModelScope)
+    }
 
     init{
         viewModelScope.launch {

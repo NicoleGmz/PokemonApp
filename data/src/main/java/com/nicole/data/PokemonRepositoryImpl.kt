@@ -1,5 +1,8 @@
 package com.nicole.data
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.nicole.data.mappers.toDomain
 import com.nicole.data.model.PokemonDetailResponse
 import com.nicole.domain.PokemonRepository
@@ -8,6 +11,7 @@ import com.nicole.domain.list.model.PokemonItem
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class PokemonRepositoryImpl @Inject constructor(
@@ -42,6 +46,24 @@ class PokemonRepositoryImpl @Inject constructor(
             emptyList()
         }
 
+    override suspend fun getPagedPokemonList(
+        searchQuery: String,
+        typeFilter: String,
+        generationFilter: String
+    ): Flow<PagingData<PokemonItem>> {
+        return Pager(
+            config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+            pagingSourceFactory = {
+                PokemonPagingSource(
+                    api = api,
+                    searchQuery = searchQuery,
+                    typeFilter = typeFilter,
+                    generationFilter = generationFilter
+                )
+            }
+        ).flow
+    }
+
     override suspend fun getPokemonById(id: Int): PokemonDetail = try {
             println("Getting pokemon $id")
             val pokemon = api.getPokemonById(id).toDomain()
@@ -59,5 +81,4 @@ class PokemonRepositoryImpl @Inject constructor(
         .joinToString(" "){ word ->
             word.replaceFirstChar { it.uppercase() }
         }
-
 }
