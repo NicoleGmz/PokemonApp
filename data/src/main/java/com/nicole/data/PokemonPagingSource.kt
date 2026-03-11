@@ -21,6 +21,14 @@ class PokemonPagingSource(
         val pageSize = params.loadSize
         val offset = page * pageSize
 
+        if(typeFilter.size > 2){
+            return LoadResult.Page(
+                emptyList(),
+                prevKey = null,
+                nextKey = null
+            )
+        }
+
         return try {
             val itemsToFetch = mutableSetOf<String>()
             var validNames: List<String>? = null
