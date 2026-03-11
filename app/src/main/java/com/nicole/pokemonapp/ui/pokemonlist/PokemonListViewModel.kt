@@ -94,7 +94,7 @@ class PokemonListViewModel @Inject constructor(
     }.flatMapLatest { (query, types, generations) ->
         getPagedPokemonList(
             searchQuery = query,
-            typeFilter = types.joinToString(","),
+            typeFilter = types,
             generationFilter = generations.joinToString(",")
         ).map { pagingData ->
             pagingData.map { pokemonItem ->

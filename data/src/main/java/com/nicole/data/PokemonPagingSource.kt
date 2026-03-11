@@ -12,7 +12,7 @@ import kotlinx.coroutines.coroutineScope
 class PokemonPagingSource(
     private val api: PokemonApi,
     private val searchQuery: String,
-    private val typeFilter: String,
+    private val typeFilter: Set<String>,
     private val generationFilter: String
 ) : PagingSource<Int, PokemonItem>() {
 
@@ -22,18 +22,29 @@ class PokemonPagingSource(
         val offset = page * pageSize
 
         return try {
-            val itemsToFetch = mutableListOf<String>()
+            val itemsToFetch = mutableSetOf<String>()
             var validNames: List<String>? = null
 
-            if (typeFilter.isNotBlank()) {
-                val typeResponse = api.getPokemonByType(typeFilter.lowercase())
+            if (typeFilter.isNotEmpty()) {
+                var combinedTypeNames: List<String>? = null
+
+                for (type in typeFilter) {
+                    val typeResponse = api.getPokemonByType(type.lowercase())
+                    val pokemonOfThisType = typeResponse.pokemon
+                        .filter {
+                            val id = it.pokemon.url.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0
+                            id < 10000
+                        }
+                        .map { it.pokemon.name }
+                    combinedTypeNames = combinedTypeNames?.intersect(pokemonOfThisType.toSet())?.toList() ?: pokemonOfThisType
+
+                }
+                validNames = combinedTypeNames
+
+                /*val typeResponse = api.getPokemonByType(typeFilter.lowercase())
                 val pokemonOfThisType = typeResponse.pokemon
-                    .filter {
-                        val id = it.pokemon.url.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0
-                        id < 10000
-                    }
-                    .map { it.pokemon.name }
-                validNames = pokemonOfThisType
+
+                validNames = pokemonOfThisType*/
             }
 
             if (searchQuery.isNotBlank()) {

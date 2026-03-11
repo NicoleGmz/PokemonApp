@@ -48,7 +48,7 @@ class PokemonRepositoryImpl @Inject constructor(
 
     override suspend fun getPagedPokemonList(
         searchQuery: String,
-        typeFilter: String,
+        typeFilter: Set<String>,
         generationFilter: String
     ): Flow<PagingData<PokemonItem>> {
         return Pager(
