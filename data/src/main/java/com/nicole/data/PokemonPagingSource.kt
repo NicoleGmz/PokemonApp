@@ -14,44 +14,58 @@ class PokemonPagingSource(
     private val searchQuery: String,
     private val typeFilter: String,
     private val generationFilter: String
-): PagingSource<Int, PokemonItem>() {
+) : PagingSource<Int, PokemonItem>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PokemonItem> {
         val page = params.key ?: 0
         val pageSize = params.loadSize
         val offset = page * pageSize
 
-        return try{
+        return try {
             val itemsToFetch = mutableListOf<String>()
+            var validNames: List<String>? = null
 
-            if(searchQuery.isNotBlank()) {
+            if (typeFilter.isNotBlank()) {
+                val typeResponse = api.getPokemonByType(typeFilter.lowercase())
+                val pokemonOfThisType = typeResponse.pokemon
+                    .filter {
+                        val id = it.pokemon.url.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0
+                        id < 10000
+                    }
+                    .map { it.pokemon.name }
+                validNames = pokemonOfThisType
+            }
+
+            if (searchQuery.isNotBlank()) {
 
                 val queryLowercase = searchQuery.lowercase().trim()
                 val isIdQuery = queryLowercase.toIntOrNull() != null
 
                 val pokemonListSummary = api.getPokemonList(limit = 2000, offset = 0)
 
-                val matchedNames = pokemonListSummary.results
+                val searchNames = pokemonListSummary.results
                     .filter {
                         val id = it.url.trimEnd('/').substringAfterLast('/')
                         val idInt = id.toIntOrNull() ?: 0
-                        if(idInt >= 10000) return@filter false
-                        if(isIdQuery){
+                        if (idInt >= 10000) return@filter false
+                        if (isIdQuery) {
                             id.startsWith(queryLowercase)
-                        }else{
+                        } else {
                             it.name.contains(queryLowercase, ignoreCase = true)
                         }
                     }
                     .map { it.name }
-                val end = minOf(offset + pageSize, matchedNames.size)
+
+                validNames = validNames?.intersect(searchNames.toSet())?.toList() ?: searchNames
+                /*val end = minOf(offset + pageSize, matchedNames.size)
 
                 if (offset < matchedNames.size) {
                     itemsToFetch.addAll(matchedNames.subList(offset, end))
-                }
+                }*/
                 /*if(page > 0) return LoadResult.Page(emptyList(), prevKey = null, nextKey = null)
 
                 itemsToFetch.add(searchQuery.lowercase().trim())*/
-            } else if(typeFilter.isNotBlank()) {
+            } /*else if(typeFilter.isNotBlank()) {
 
                 val typeResponse = api.getPokemonByType(typeFilter.lowercase())
                 val pokemonOfThisType = typeResponse.pokemon.map { it.name }
@@ -60,10 +74,24 @@ class PokemonPagingSource(
                     itemsToFetch.addAll(pokemonOfThisType.subList(offset, end))
                 }
 
-            }
-            else{
+            }*/
+
+            if (validNames != null) {
+                val end = minOf(offset + pageSize, validNames.size)
+                if (offset < validNames.size) {
+                    itemsToFetch.addAll(validNames.subList(offset, end))
+                }
+            } else {
                 val pokemonList = api.getPokemonList(limit = pageSize, offset = offset)
-                itemsToFetch.addAll(pokemonList.results.map { it.name })
+                itemsToFetch.addAll(
+                    pokemonList.results
+                    .filter {
+                        val id = it.url.trimEnd('/').substringAfterLast('/')
+                        val idInt = id.toIntOrNull() ?: 0
+                        idInt < 10000
+                    }
+                    .map { it.name }
+                )
             }
 
             val detailedPokemonList = coroutineScope {
@@ -79,7 +107,7 @@ class PokemonPagingSource(
                 }.awaitAll().filterNotNull()
             }
 
-            val nextKey = if (detailedPokemonList.isEmpty() || searchQuery.isNotBlank()) null else page + 1
+            val nextKey = if (detailedPokemonList.isEmpty() || itemsToFetch.size < pageSize) null else page + 1
             val prevKey = if (page == 0) null else page - 1
 
             LoadResult.Page(
@@ -87,8 +115,8 @@ class PokemonPagingSource(
                 prevKey = prevKey,
                 nextKey = nextKey
             )
-        }catch (e: Exception){
-            LoadResult.Error(e )
+        } catch (e: Exception) {
+            LoadResult.Error(e)
         }
     }
 
