@@ -148,6 +148,15 @@ fun PokemonListScreen(
                     CircularProgressIndicator()
                 }
             }
+
+            if(lazyPagingPokemonList.loadState.refresh is LoadState.NotLoading && lazyPagingPokemonList.itemCount == 0) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ){
+                    Text(text = "No Pokemon Found")
+                }
+            }
         }
     }
 }
