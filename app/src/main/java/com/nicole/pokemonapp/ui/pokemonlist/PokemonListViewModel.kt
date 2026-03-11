@@ -126,4 +126,12 @@ class PokemonListViewModel @Inject constructor(
         }
     }
 
+    fun clearTypeFilter(){
+        _selectedTypes.value = emptySet()
+    }
+
+    fun clearGenerationFilter(){
+        _selectedGeneration.value = emptySet()
+    }
+
 }

@@ -122,6 +122,7 @@ fun PokemonListScreen(
                 title = "Type",
                 options = allTypes,
                 selectedOptions = selectedTypes,
+                clearSelection = viewModel::clearTypeFilter,
                 onOptionSelected = viewModel::toggleTypeFilter
             )
 
@@ -131,6 +132,7 @@ fun PokemonListScreen(
                 title = "Generation",
                 options = allGeneration,
                 selectedOptions = selectedGeneration,
+                clearSelection = viewModel::clearGenerationFilter,
                 onOptionSelected = viewModel::toggleGenerationFilter
             )
 
@@ -231,6 +233,7 @@ fun ExpandableFilterSelection(
     title: String,
     options: List<String>,
     selectedOptions: Set<String> = emptySet(),
+    clearSelection: () -> Unit = {},
     onOptionSelected: (String) -> Unit
 ){
     var expanded by remember { mutableStateOf(false) }
@@ -264,6 +267,16 @@ fun ExpandableFilterSelection(
                     overflow = TextOverflow.Ellipsis
                 )
             }
+
+            if(selectedOptions.isNotEmpty()){
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = null,
+                    modifier = Modifier.clickable { clearSelection() },
+                    tint = Color.Red
+                )
+            }
+
             Icon(
                 imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
