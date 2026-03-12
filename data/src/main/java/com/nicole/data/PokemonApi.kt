@@ -1,9 +1,11 @@
 package com.nicole.data
 
+import com.nicole.data.model.GenerationsListResponse
 import com.nicole.data.model.PokemonDetailResponse
 import com.nicole.data.model.PokemonListResponse
 import com.nicole.data.model.PokemonSpeciesResponse
 import com.nicole.data.model.PokemonTypeResponse
+import com.nicole.data.model.TypeListResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -25,6 +27,14 @@ interface PokemonApi {
     suspend fun getPokemonById(
         @Path("name") name: String
     ): PokemonDetailResponse
+
+
+
+    @GET("generation")
+    suspend fun getGenerationList(): GenerationsListResponse
+
+    @GET("type")
+    suspend fun getTypesList(): TypeListResponse
 
 
     @GET("pokemon-species/{id}")

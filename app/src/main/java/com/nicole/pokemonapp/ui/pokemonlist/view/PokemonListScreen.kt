@@ -119,16 +119,6 @@ fun PokemonListScreen(
         }
     }
 
-    val allTypes = listOf(
-        "Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
-        "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"
-    )
-
-    val allGeneration = listOf(
-        "Generation I", "Generation II", "Generation III", "Generation IV", "Generation V",
-        "Generation VI", "Generation VII", "Generation VIII", "Generation IX"
-    )
-
     Scaffold(
         floatingActionButtonPosition = androidx.compose.material3.FabPosition.Center,
         floatingActionButton = {
@@ -184,7 +174,7 @@ fun PokemonListScreen(
 
             ExpandableFilterSelection(
                 title = "Type",
-                options = allTypes,
+                options = viewModel.allTypes,
                 selectedOptions = selectedTypes,
                 clearSelection = viewModel::clearTypeFilter,
                 onOptionSelected = viewModel::toggleTypeFilter
@@ -194,7 +184,7 @@ fun PokemonListScreen(
 
             ExpandableFilterSelection(
                 title = "Generation",
-                options = allGeneration,
+                options = viewModel.allGenerations,
                 selectedOptions = selectedGeneration,
                 clearSelection = viewModel::clearGenerationFilter,
                 onOptionSelected = viewModel::toggleGenerationFilter

@@ -1,12 +1,17 @@
 package com.nicole.pokemonapp.ui.pokemonlist
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.nicole.domain.list.usecase.GetPagePokemonListUseCase
+import com.nicole.domain.list.usecase.GetPokemonGenerationListUseCase
 import com.nicole.domain.list.usecase.GetPokemonListUseCase
+import com.nicole.domain.list.usecase.GetPokemonTypeListUseCase
 import com.nicole.pokemonapp.ui.pokemonlist.model.PokemonItemUiState
 import com.nicole.pokemonapp.ui.pokemonlist.model.PokemonListUiState
 import com.nicole.pokemonapp.ui.pokemonlist.model.toUiState
@@ -26,6 +31,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PokemonListViewModel @Inject constructor(
+    private val getPokemonTypeList: GetPokemonTypeListUseCase,
+    private val getPokemonGenerationList: GetPokemonGenerationListUseCase,
     private val getPokemonList: GetPokemonListUseCase,
     private val getPagedPokemonList: GetPagePokemonListUseCase
 ) : ViewModel() {
@@ -41,6 +48,12 @@ class PokemonListViewModel @Inject constructor(
 
     private val _selectedGeneration = MutableStateFlow(emptySet<String>())
     val selectedGeneration: StateFlow<Set<String>> = _selectedGeneration.asStateFlow()
+
+    var allTypes by mutableStateOf<List<String>>(emptyList())
+        private set
+
+    var allGenerations by mutableStateOf<List<String>>(emptyList())
+        private set
 
     //private val _uiState = MutableStateFlow(PokemonListUiState.DEFAULT)
     val uiState: StateFlow<PokemonListUiState> = combine(
@@ -104,11 +117,35 @@ class PokemonListViewModel @Inject constructor(
     }
 
     init{
+        loadTypes()
+        loadGenerations()
+        loadPokemonList()
+    }
+
+    private fun loadTypes() {
+        viewModelScope.launch {
+            val rawTypes = getPokemonTypeList()
+            allTypes = rawTypes.filterNot { typeName ->
+                //Remove stellar when new pokemons are added in this type
+                typeName.lowercase() in listOf("unknown", "shadow", "stellar")
+            }
+        }
+    }
+
+    private fun loadGenerations(){
+        viewModelScope.launch {
+            allGenerations = getPokemonGenerationList()
+        }
+    }
+
+    private fun loadPokemonList() {
         viewModelScope.launch {
             println("PokemonListViewModel init")
             _allPokemon.value = getPokemonList().toUiState()
         }
     }
+
+
 
     fun onSearchQueryChanged(newQuery: String){
         _searchQuery.value = newQuery

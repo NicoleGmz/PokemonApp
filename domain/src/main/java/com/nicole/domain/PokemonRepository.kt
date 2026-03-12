@@ -7,6 +7,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface PokemonRepository {
 
+    suspend fun getPokemonTypeList(): List<String>
+
+    suspend fun getPokemonGenerationList(): List<String>
+
     suspend fun getPokemonList(): List<PokemonItem>
 
     suspend fun getPagedPokemonList(

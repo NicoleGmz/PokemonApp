@@ -17,6 +17,18 @@ import javax.inject.Inject
 class PokemonRepositoryImpl @Inject constructor(
     private val api: PokemonApi
 ) : PokemonRepository {
+    override suspend fun getPokemonTypeList(): List<String> {
+        val typeList = api.getTypesList().results
+        return typeList.map { type -> type.name.replaceFirstChar { it.uppercase() } }
+    }
+
+    override suspend fun getPokemonGenerationList(): List<String> {
+        val generationList = api.getGenerationList().results
+        return generationList.map {
+            val generation = formatGenerationName(it.name)
+            formatGenerationName(generation)
+        }
+    }
 
     override suspend fun getPokemonList(): List<PokemonItem> = try {
             println("Getting pokemon list")
@@ -78,7 +90,13 @@ class PokemonRepositoryImpl @Inject constructor(
 
     private fun formatGenerationName(generation: String): String = generation
         .split("-")
-        .joinToString(" "){ word ->
-            word.replaceFirstChar { it.uppercase() }
+        .mapIndexed { index, word ->
+            if(index == 0){
+                word.replaceFirstChar { it.uppercase() }
+            }else {
+                word.uppercase()
+            }
         }
+        .joinToString(" ")
+
 }
