@@ -1,6 +1,10 @@
 package com.nicole.pokemonapp.ui.pokemonlist.view
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,8 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -31,6 +38,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,10 +47,14 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +78,7 @@ import com.nicole.domain.list.model.PokemonItem
 import com.nicole.pokemonapp.ui.pokemonlist.PokemonListViewModel
 import com.nicole.pokemonapp.ui.pokemonlist.model.PokemonItemUiState
 import com.nicole.pokemonapp.ui.theme.getPokemonTypeColor
+import kotlinx.coroutines.launch
 
 @Suppress("ParamsComparedByRef")
 @Composable
@@ -81,6 +94,31 @@ fun PokemonListScreen(
 
     val lazyPagingPokemonList = viewModel.pagedPokemonList.collectAsLazyPagingItems()
 
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val showScrollToTopFab by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0
+        }
+    }
+
+    var previousFirstId by remember { mutableStateOf<Any?>(null) }
+    val currentFirstId = lazyPagingPokemonList.itemSnapshotList.items.firstOrNull()?.id
+
+
+    LaunchedEffect(currentFirstId) {
+        if (currentFirstId != null) {
+            if (currentFirstId != previousFirstId && previousFirstId != null) {
+                listState.scrollToItem(0)
+            }
+            previousFirstId = currentFirstId
+        }else if (lazyPagingPokemonList.loadState.refresh is LoadState.NotLoading){
+            previousFirstId = null
+            //listState.animateScrollToItem(0)
+        }
+    }
+
     val allTypes = listOf(
         "Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
         "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"
@@ -91,7 +129,33 @@ fun PokemonListScreen(
         "Generation VI", "Generation VII", "Generation VIII", "Generation IX"
     )
 
-    Scaffold{ paddingValues ->
+    Scaffold(
+        floatingActionButtonPosition = androidx.compose.material3.FabPosition.Center,
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = showScrollToTopFab,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut()
+            ){
+            FloatingActionButton(
+                shape = CircleShape,
+                onClick = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ){
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowUp,
+                    contentDescription = "Scroll to top"
+                )
+            }
+            }
+        }
+    )
+    { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -138,7 +202,7 @@ fun PokemonListScreen(
 
             HorizontalDivider( modifier = Modifier.padding(horizontal = 8.dp))
 
-            PokemonList(pokemonList = lazyPagingPokemonList, onPokemonClicked = onPokemonClicked)
+            PokemonList(listState, lazyPagingPokemonList, onPokemonClicked = onPokemonClicked)
 
             if (lazyPagingPokemonList.loadState.refresh is LoadState.Loading && lazyPagingPokemonList.itemCount == 0) {
                 Box(
@@ -163,11 +227,13 @@ fun PokemonListScreen(
 
 @Composable
 fun PokemonList(
+    listState: LazyListState,
     pokemonList: LazyPagingItems<PokemonItemUiState>,
     onPokemonClicked: (id: Int) -> Unit
 ) {
 
     LazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
