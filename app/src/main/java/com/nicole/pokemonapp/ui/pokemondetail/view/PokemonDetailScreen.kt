@@ -20,6 +20,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Error
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -95,7 +97,7 @@ fun PokemonDetailScaffold(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Pokemon Detail",
+                        text = "",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
@@ -119,13 +121,50 @@ fun PokemonDetailScaffold(
             )
         }
     ) { paddingValues ->
-        Box(
+        /*Box(
             modifier = Modifier.padding(paddingValues).fillMaxSize().background(brush = Brush.verticalGradient(gradientColor)),
             contentAlignment = Alignment.TopStart
         ) {
 
             PokemonDetailComponent(pokemonDetail = pokemonDetail)
 
+        }*/
+        Column (
+            modifier = Modifier
+                .padding(paddingValues)
+                .background(Brush.verticalGradient(gradientColor))
+                //.verticalScroll(rememberScrollState())
+                .fillMaxSize()
+        ){
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ){
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        //.background(Brush.verticalGradient(gradientColor))
+                        .padding(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Transparent
+                    ),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    PokemonDetailComponent(pokemonDetail = pokemonDetail)
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent),
+                contentAlignment = Alignment.Center
+            ) {
+                PokemonStatsComponent(pokemonDetail.stats)
+            }
         }
     }
 }
@@ -137,9 +176,11 @@ fun PokemonDetailComponent(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 16.dp),
+            .fillMaxWidth()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+            //.background(Brush.verticalGradient(pokemonDetail.gradientColor))
+            //.padding(bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -166,8 +207,14 @@ fun PokemonDetailComponent(
         )
 
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
+                ),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             DetailRow("ID", pokemonDetail.id.toString())
             DetailRow("Height", pokemonDetail.height.toString())
@@ -175,7 +222,7 @@ fun PokemonDetailComponent(
             DetailRow("Generation", pokemonDetail.generation)
             DetailRow("Types", pokemonDetail.types.joinToString(", "))
 
-            PokemonStatsComponent(pokemonDetail.stats)
+            //PokemonStatsComponent(pokemonDetail.stats)
         }
     }
 }
@@ -210,7 +257,11 @@ fun PokemonStatsComponent(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp),
+            .padding(
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 32.dp
+            ),
     ){
         Column() {
             Text("Basic Stats: ")
@@ -222,7 +273,6 @@ fun PokemonStatsComponent(
             }
         }
     }
-
 }
 
 
