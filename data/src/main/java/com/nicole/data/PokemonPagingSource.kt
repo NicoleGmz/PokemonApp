@@ -64,7 +64,7 @@ class PokemonPagingSource(
 
                 for (generation in generationFilter) {
                     val genFormatted = generation.lowercase().replace(" ", "-")
-                    val generationResponse = api.getPokemonSpeciesById(genFormatted)
+                    val generationResponse = api.getGenerationByName(genFormatted)
 
                     val pokemonOfThisGeneration = generationResponse.pokemonSpecies.mapNotNull {
                         val id = it.url.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0

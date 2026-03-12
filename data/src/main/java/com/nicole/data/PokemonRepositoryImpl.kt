@@ -79,7 +79,8 @@ class PokemonRepositoryImpl @Inject constructor(
     override suspend fun getPokemonById(id: Int): PokemonDetail = try {
             println("Getting pokemon $id")
             val pokemon = api.getPokemonById(id).toDomain()
-            val generation = api.getPokemonSpeciesById(id).name
+            val generation = api.getPokemonSpeciesById(id).generation.name
+            println(generation)
             pokemon.copy(generation = formatGenerationName(generation))
         }catch (e: Exception){
             println("Error getting pokemon $id: ${e.message}")

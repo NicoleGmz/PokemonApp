@@ -1,5 +1,6 @@
 package com.nicole.data
 
+import com.nicole.data.model.GenerationResponse
 import com.nicole.data.model.GenerationsListResponse
 import com.nicole.data.model.PokemonDetailResponse
 import com.nicole.data.model.PokemonListResponse
@@ -43,9 +44,14 @@ interface PokemonApi {
     ): PokemonSpeciesResponse
 
     @GET("generation/{id}")
-    suspend fun getPokemonSpeciesById(
+    suspend fun getGenerationById(
         @Path("id") id: String
-    ): PokemonSpeciesResponse
+    ): GenerationResponse
+
+    @GET("generation/{id}")
+    suspend fun getGenerationByName(
+        @Path("id") id: String
+    ): GenerationResponse
 
     @GET("type/{type}")
     suspend fun getPokemonByType(
