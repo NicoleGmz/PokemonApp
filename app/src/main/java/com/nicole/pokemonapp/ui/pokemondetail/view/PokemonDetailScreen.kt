@@ -1,6 +1,14 @@
 package com.nicole.pokemonapp.ui.pokemondetail.view
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,10 +18,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -32,9 +42,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -97,7 +109,7 @@ fun PokemonDetailScaffold(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "",
+                        text = "Pokemon Detail",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
@@ -143,15 +155,44 @@ fun PokemonDetailScaffold(
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ){
+                val infiniteTransition = rememberInfiniteTransition(label = "shine_transition")
+                val shineOffset by infiniteTransition.animateFloat(
+                    initialValue = -500f, // Starts way off-screen to the top-left
+                    targetValue = 1500f,  // Ends way off-screen to the bottom-right
+                    animationSpec = infiniteRepeatable(
+                        // LinearEasing keeps the speed constant, delayMillis pauses briefly between shines
+                        animation = tween(durationMillis = 2000, delayMillis = 1000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "shine_offset"
+                )
+
+                val shineBrush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.Transparent,                 // Starts invisible
+                        Color.White.copy(alpha = 0.2f),    // Fades into light
+                        Color.White.copy(alpha = 0.6f),    // The intense center of the reflection
+                        Color.White.copy(alpha = 0.2f),    // Fades out
+                        Color.Transparent                  // Ends invisible
+                    ),
+                    start = Offset(shineOffset, shineOffset),
+                    end = Offset(shineOffset + 400f, shineOffset + 400f) // The +400f determines the thickness and angle of the light beam
+                )
+
                 Card(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(0.9f)
                         //.background(Brush.verticalGradient(gradientColor))
-                        .padding(16.dp),
+                        .padding(16.dp, 16.dp, 16.dp, 32.dp)
+                        .border(1.dp, Color.White.copy(alpha = 0.4f), shape = RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.15f))
+                        .background(shineBrush),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color.Transparent
+                        Color.Transparent
                     ),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                    //shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(0.dp)
                 ) {
                     PokemonDetailComponent(pokemonDetail = pokemonDetail)
                 }
@@ -257,13 +298,14 @@ fun PokemonStatsComponent(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 32.dp
-            ),
+            ,
     ){
-        Column() {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(30.dp)
+                .verticalScroll(rememberScrollState()),
+        ) {
             Text("Basic Stats: ")
 
             Spacer(modifier = Modifier.size(8.dp))
