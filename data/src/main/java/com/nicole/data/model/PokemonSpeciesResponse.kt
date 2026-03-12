@@ -5,10 +5,10 @@ import com.google.gson.annotations.SerializedName
 data class PokemonSpeciesResponse(
     @SerializedName("id") val id: Int,
     @SerializedName("name") val name: String,
-    @SerializedName("generation") val generation: Generation
+    @SerializedName("pokemon_species") val pokemonSpecies: List<GenerationItem>
 )
 
-data class Generation(
+data class GenerationItem(
     @SerializedName("name") val name: String,
     @SerializedName("url") val url: String
 )

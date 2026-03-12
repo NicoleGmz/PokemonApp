@@ -12,7 +12,7 @@ interface PokemonRepository {
     suspend fun getPagedPokemonList(
         searchQuery: String,
         typeFilter: Set<String>,
-        generationFilter: String
+        generationFilter: Set<String>
     ): Flow<PagingData<PokemonItem>>
 
     suspend fun getPokemonById(id: Int): PokemonDetail

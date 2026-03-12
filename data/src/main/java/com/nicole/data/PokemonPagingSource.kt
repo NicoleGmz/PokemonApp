@@ -13,15 +13,15 @@ class PokemonPagingSource(
     private val api: PokemonApi,
     private val searchQuery: String,
     private val typeFilter: Set<String>,
-    private val generationFilter: String
+    private val generationFilter: Set<String>
 ) : PagingSource<Int, PokemonItem>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PokemonItem> {
-        val page = params.key ?: 0
+        //val page = params.key ?: 0
         val pageSize = params.loadSize
-        val offset = page * pageSize
+        val offset = params.key ?: 0
 
-        if(typeFilter.size > 2){
+        if (typeFilter.size > 2) {
             return LoadResult.Page(
                 emptyList(),
                 prevKey = null,
@@ -31,28 +31,51 @@ class PokemonPagingSource(
 
         return try {
             val itemsToFetch = mutableSetOf<String>()
-            var validNames: List<String>? = null
+            var validIds: Set<Int>? = null
+
+            var endOfPaginationReached = false
 
             if (typeFilter.isNotEmpty()) {
-                var combinedTypeNames: List<String>? = null
+                var combinedTypeIds: Set<Int>? = null
 
                 for (type in typeFilter) {
                     val typeResponse = api.getPokemonByType(type.lowercase())
                     val pokemonOfThisType = typeResponse.pokemon
-                        .filter {
-                            val id = it.pokemon.url.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0
-                            id < 10000
-                        }
-                        .map { it.pokemon.name }
-                    combinedTypeNames = combinedTypeNames?.intersect(pokemonOfThisType.toSet())?.toList() ?: pokemonOfThisType
-
+                        .mapNotNull {
+                            val id =
+                                it.pokemon.url.trimEnd('/').substringAfterLast('/').toIntOrNull()
+                                    ?: 0
+                            if (id in 1..9999) id else null
+                        }.toSet()
+                    //.map { it.pokemon.name }
+                    combinedTypeIds = combinedTypeIds?.intersect(pokemonOfThisType)
+                        ?: pokemonOfThisType
                 }
-                validNames = combinedTypeNames
+                validIds = combinedTypeIds
 
                 /*val typeResponse = api.getPokemonByType(typeFilter.lowercase())
                 val pokemonOfThisType = typeResponse.pokemon
 
                 validNames = pokemonOfThisType*/
+            }
+
+            if (generationFilter.isNotEmpty()) {
+                val combinedGenerationIds = mutableSetOf<Int>()
+
+                for (generation in generationFilter) {
+                    val genFormatted = generation.lowercase().replace(" ", "-")
+                    val generationResponse = api.getPokemonSpeciesById(genFormatted)
+
+                    val pokemonOfThisGeneration = generationResponse.pokemonSpecies.mapNotNull {
+                        val id = it.url.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0
+                        if (id in 1..9999) id else null
+                    }.toSet()
+
+                    combinedGenerationIds.addAll(pokemonOfThisGeneration)
+                }
+
+                validIds = validIds?.intersect(combinedGenerationIds)
+                    ?: combinedGenerationIds
             }
 
             if (searchQuery.isNotBlank()) {
@@ -62,20 +85,24 @@ class PokemonPagingSource(
 
                 val pokemonListSummary = api.getPokemonList(limit = 2000, offset = 0)
 
-                val searchNames = pokemonListSummary.results
-                    .filter {
+                val searchIds: Set<Int> = pokemonListSummary.results
+                    .mapNotNull {
                         val id = it.url.trimEnd('/').substringAfterLast('/')
                         val idInt = id.toIntOrNull() ?: 0
-                        if (idInt >= 10000) return@filter false
-                        if (isIdQuery) {
-                            id.startsWith(queryLowercase)
+                        if (idInt >= 10000) {
+                            null
                         } else {
-                            it.name.contains(queryLowercase, ignoreCase = true)
+                            val matches = if (isIdQuery) {
+                                id.startsWith(queryLowercase)
+                            } else {
+                                it.name.contains(queryLowercase, ignoreCase = true)
+                            }
+                            if (matches) idInt else null
                         }
-                    }
-                    .map { it.name }
+                    }.toSet()
 
-                validNames = validNames?.intersect(searchNames.toSet())?.toList() ?: searchNames
+                validIds = validIds?.intersect(searchIds) ?: searchIds
+
                 /*val end = minOf(offset + pageSize, matchedNames.size)
 
                 if (offset < matchedNames.size) {
@@ -95,22 +122,25 @@ class PokemonPagingSource(
 
             }*/
 
-            if (validNames != null) {
-                val end = minOf(offset + pageSize, validNames.size)
-                if (offset < validNames.size) {
-                    itemsToFetch.addAll(validNames.subList(offset, end))
+            if (validIds != null) {
+                val sortedIds = validIds.sorted()
+                val end = minOf(offset + pageSize, sortedIds.size)
+                if (offset < sortedIds.size) {
+                    itemsToFetch.addAll(sortedIds.subList(offset, end).map { it.toString() })
                 }
+                endOfPaginationReached = (offset + pageSize) >= sortedIds.size
             } else {
                 val pokemonList = api.getPokemonList(limit = pageSize, offset = offset)
                 itemsToFetch.addAll(
                     pokemonList.results
-                    .filter {
-                        val id = it.url.trimEnd('/').substringAfterLast('/')
-                        val idInt = id.toIntOrNull() ?: 0
-                        idInt < 10000
-                    }
-                    .map { it.name }
+                        .mapNotNull {
+                            val id = it.url.trimEnd('/').substringAfterLast('/')
+                            val idInt = id.toIntOrNull() ?: 0
+                            if (idInt in 1..9999) idInt.toString() else null
+                        }
                 )
+
+                endOfPaginationReached = pokemonList.results.isEmpty() || pokemonList.next == null
             }
 
             val detailedPokemonList = coroutineScope {
@@ -126,8 +156,8 @@ class PokemonPagingSource(
                 }.awaitAll().filterNotNull()
             }
 
-            val nextKey = if (detailedPokemonList.isEmpty() || itemsToFetch.size < pageSize) null else page + 1
-            val prevKey = if (page == 0) null else page - 1
+            val nextKey = if (endOfPaginationReached) null else offset + pageSize
+            val prevKey = if (offset == 0) null else maxOf(0, offset - pageSize)
 
             LoadResult.Page(
                 data = detailedPokemonList,

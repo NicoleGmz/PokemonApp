@@ -95,7 +95,7 @@ class PokemonListViewModel @Inject constructor(
         getPagedPokemonList(
             searchQuery = query,
             typeFilter = types,
-            generationFilter = generations.joinToString(",")
+            generationFilter = generations
         ).map { pagingData ->
             pagingData.map { pokemonItem ->
                 pokemonItem.toUiState()

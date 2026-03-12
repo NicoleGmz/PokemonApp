@@ -49,7 +49,7 @@ class PokemonRepositoryImpl @Inject constructor(
     override suspend fun getPagedPokemonList(
         searchQuery: String,
         typeFilter: Set<String>,
-        generationFilter: String
+        generationFilter: Set<String>
     ): Flow<PagingData<PokemonItem>> {
         return Pager(
             config = PagingConfig(pageSize = 20, enablePlaceholders = false),
@@ -67,7 +67,7 @@ class PokemonRepositoryImpl @Inject constructor(
     override suspend fun getPokemonById(id: Int): PokemonDetail = try {
             println("Getting pokemon $id")
             val pokemon = api.getPokemonById(id).toDomain()
-            val generation = api.getPokemonSpeciesById(id).generation.name
+            val generation = api.getPokemonSpeciesById(id).name
             pokemon.copy(generation = formatGenerationName(generation))
         }catch (e: Exception){
             println("Error getting pokemon $id: ${e.message}")

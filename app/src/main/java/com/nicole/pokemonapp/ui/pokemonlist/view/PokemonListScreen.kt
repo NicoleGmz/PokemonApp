@@ -281,7 +281,10 @@ fun ExpandableFilterSelection(
                 Icon(
                     imageVector = Icons.Default.Clear,
                     contentDescription = null,
-                    modifier = Modifier.clickable { clearSelection() },
+                    modifier = Modifier
+                        .clickable { clearSelection() }
+                        .padding(end = 8.dp)
+                    ,
                     tint = Color.Red
                 )
             }

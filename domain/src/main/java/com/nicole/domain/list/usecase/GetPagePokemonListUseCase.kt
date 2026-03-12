@@ -12,7 +12,7 @@ class GetPagePokemonListUseCase(
     suspend operator fun invoke(
         searchQuery: String,
         typeFilter: Set<String>,
-        generationFilter: String
+        generationFilter: Set<String>
     ): Flow<PagingData<PokemonItem>> {
         return repository.getPagedPokemonList(
             searchQuery = searchQuery,
