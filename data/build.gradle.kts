@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.retrofit.serialization)
     implementation(libs.okhttp)
     implementation(libs.paging.runtime)
+    implementation(libs.timber)
     ksp(libs.hilt.compiler)
     androidTestImplementation(libs.androidx.espresso.core)
     testImplementation(libs.junit.jupiter)

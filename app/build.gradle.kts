@@ -37,6 +37,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -64,6 +65,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.network)
     implementation(libs.paging.compose)
+    implementation(libs.timber)
 
     // Hilt
     implementation(libs.hilt.android)

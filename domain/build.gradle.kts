@@ -12,4 +12,5 @@ kotlin {
 dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.paging.common)
+    implementation(libs.timber)
 }
