@@ -1,12 +1,10 @@
 package com.nicole.data
 
+import com.nicole.data.model.CommonListResponse
 import com.nicole.data.model.GenerationResponse
-import com.nicole.data.model.GenerationsListResponse
 import com.nicole.data.model.PokemonDetailResponse
-import com.nicole.data.model.PokemonListResponse
 import com.nicole.data.model.PokemonSpeciesResponse
 import com.nicole.data.model.PokemonTypeResponse
-import com.nicole.data.model.TypeListResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -17,45 +15,31 @@ interface PokemonApi {
     suspend fun getPokemonList(
         @Query("limit") limit: Int,
         @Query("offset") offset: Int
-    ): PokemonListResponse
-
-    @GET("pokemon/{id}")
-    suspend fun getPokemonById(
-        @Path("id") id: Int
-    ): PokemonDetailResponse
-
-    @GET("pokemon/{name}")
-    suspend fun getPokemonById(
-        @Path("name") name: String
-    ): PokemonDetailResponse
-
-
+    ): CommonListResponse
 
     @GET("generation")
-    suspend fun getGenerationList(): GenerationsListResponse
+    suspend fun getGenerationList(): CommonListResponse
 
     @GET("type")
-    suspend fun getTypesList(): TypeListResponse
+    suspend fun getTypesList(): CommonListResponse
 
+    @GET("pokemon/{idOrName}")
+    suspend fun getPokemon(
+        @Path("idOrName") idOrName: String
+    ): PokemonDetailResponse
 
     @GET("pokemon-species/{id}")
-    suspend fun getPokemonSpeciesById(
+    suspend fun getPokemonSpecies(
         @Path("id") id: Int
     ): PokemonSpeciesResponse
 
-    @GET("generation/{id}")
-    suspend fun getGenerationById(
-        @Path("id") id: String
-    ): GenerationResponse
-
-    @GET("generation/{id}")
-    suspend fun getGenerationByName(
-        @Path("id") id: String
+    @GET("generation/{idOrName}")
+    suspend fun getGeneration(
+        @Path("idOrName") idOrName: String
     ): GenerationResponse
 
     @GET("type/{type}")
     suspend fun getPokemonByType(
         @Path("type") type: String
     ): PokemonTypeResponse
-
 }

@@ -9,11 +9,5 @@ data class PokemonTypeResponse(
 )
 
 data class TypePokemonSlotDto(
-    @SerializedName("slot") val slot: Int?, // Optional, but good to have
-    @SerializedName("pokemon") val pokemon: PokemonTypeItem
-)
-
-data class PokemonTypeItem(
-    @SerializedName("name") val name: String,
-    @SerializedName("url") val url: String
+    @SerializedName("pokemon") val pokemon: CommonItemApiResource
 )

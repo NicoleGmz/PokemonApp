@@ -4,6 +4,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.nicole.data.mappers.toDomain
+import com.nicole.data.mappers.toDomainListItem
+import com.nicole.data.mappers.toPokemonListItemDomain
 import com.nicole.data.model.PokemonDetailResponse
 import com.nicole.domain.PokemonRepository
 import com.nicole.domain.detail.model.PokemonDetail
@@ -17,6 +19,7 @@ import javax.inject.Inject
 class PokemonRepositoryImpl @Inject constructor(
     private val api: PokemonApi
 ) : PokemonRepository {
+
     override suspend fun getPokemonTypeList(): List<String> {
         val typeList = api.getTypesList().results
         return typeList.map { type -> type.name.replaceFirstChar { it.uppercase() } }
@@ -34,20 +37,18 @@ class PokemonRepositoryImpl @Inject constructor(
             println("Getting pokemon list")
             val pokemonList = api.getPokemonList(limit = 151, offset = 0)
             coroutineScope {
-                val resultList = pokemonList.results.map { pokemonListItem ->
+                val resultList = pokemonList.results.map{
                     async {
-                        val pokemon = pokemonListItem.toDomain()
+                        val pokemonListItem = it.toPokemonListItemDomain()
                         try {
-                            println("Getting pokemon ${pokemonListItem.name}")
-                            println(pokemon)
-                            val pokemonDetail = getPokemonById(pokemon.id)
-                            pokemon.copy(
+                            val pokemonDetail = getPokemonById(pokemonListItem.id)
+                            pokemonListItem.copy(
                                 types = pokemonDetail.types,
                                 generation = pokemonDetail.generation
                             )
                         } catch (e: Exception) {
                             println("Failed to fetch types for ${pokemonListItem.name}: ${e.message}")
-                            pokemon
+                            pokemonListItem
                         }
                     }
                 }
@@ -78,8 +79,8 @@ class PokemonRepositoryImpl @Inject constructor(
 
     override suspend fun getPokemonById(id: Int): PokemonDetail = try {
             println("Getting pokemon $id")
-            val pokemon = api.getPokemonById(id).toDomain()
-            val generation = api.getPokemonSpeciesById(id).generation.name
+            val pokemon = api.getPokemon(id.toString()).toDomain()
+            val generation = api.getPokemonSpecies(id).generation.name
             println(generation)
             pokemon.copy(generation = formatGenerationName(generation))
         }catch (e: Exception){

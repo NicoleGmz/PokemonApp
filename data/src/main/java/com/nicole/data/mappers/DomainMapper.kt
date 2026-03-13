@@ -1,19 +1,9 @@
 package com.nicole.data.mappers
 
+import com.nicole.data.model.CommonItemApiResource
 import com.nicole.data.model.PokemonDetailResponse
-import com.nicole.data.model.PokemonListItem
 import com.nicole.domain.detail.model.PokemonDetail
 import com.nicole.domain.list.model.PokemonItem
-
-fun PokemonListItem.toDomain(): PokemonItem{
-    return PokemonItem(
-        name = name.replaceFirstChar { it.uppercase() },
-        id = getIdFromUrl(url),
-        sprite = getSpriteFromId(getIdFromUrl(url)),
-        types = emptyList(),
-        generation = ""
-    )
-}
 
 fun PokemonDetailResponse.toDomain(): PokemonDetail{
     return PokemonDetail(
@@ -39,6 +29,16 @@ fun PokemonDetailResponse.toDomainListItem(): PokemonItem{
         id = id,
         sprite = getSpriteFromId(id),
         types = types.map { it.type.name },
+        generation = ""
+    )
+}
+
+fun CommonItemApiResource.toPokemonListItemDomain(): PokemonItem{
+    return PokemonItem(
+        name = name.replaceFirstChar { it.uppercase() },
+        id = getIdFromUrl(url),
+        sprite = getSpriteFromId(getIdFromUrl(url)),
+        types = emptyList(),
         generation = ""
     )
 }

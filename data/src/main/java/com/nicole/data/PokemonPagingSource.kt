@@ -64,7 +64,7 @@ class PokemonPagingSource(
 
                 for (generation in generationFilter) {
                     val genFormatted = generation.lowercase().replace(" ", "-")
-                    val generationResponse = api.getGenerationByName(genFormatted)
+                    val generationResponse = api.getGeneration(genFormatted)
 
                     val pokemonOfThisGeneration = generationResponse.pokemonSpecies.mapNotNull {
                         val id = it.url.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0
@@ -134,9 +134,8 @@ class PokemonPagingSource(
                 itemsToFetch.addAll(
                     pokemonList.results
                         .mapNotNull {
-                            val id = it.url.trimEnd('/').substringAfterLast('/')
-                            val idInt = id.toIntOrNull() ?: 0
-                            if (idInt in 1..9999) idInt.toString() else null
+                            val id = it.url.extractIdFromUrl()
+                            if (id in 1..9999) id.toString() else null
                         }
                 )
 
@@ -147,7 +146,7 @@ class PokemonPagingSource(
                 itemsToFetch.map { pokemonName ->
                     async {
                         try {
-                            val pokemonDetail = api.getPokemonById(pokemonName)
+                            val pokemonDetail = api.getPokemon(pokemonName)
                             pokemonDetail.toDomainListItem()
                         } catch (e: Exception) {
                             null
@@ -174,5 +173,9 @@ class PokemonPagingSource(
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
+    }
+
+    fun String.extractIdFromUrl(): Int{
+        return this.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0
     }
 }

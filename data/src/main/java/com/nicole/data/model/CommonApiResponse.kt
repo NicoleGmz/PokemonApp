@@ -2,16 +2,14 @@ package com.nicole.data.model
 
 import com.google.gson.annotations.SerializedName
 
-data class PokemonListResponse(
+data class CommonListResponse(
     @SerializedName("count") val count: Int,
     @SerializedName("next") val next: String?,
     @SerializedName("previous") val previous: String?,
-    @SerializedName("results") val results: List<PokemonListItem>
+    @SerializedName("results") val results: List<CommonItemApiResource>
 )
 
-data class PokemonListItem(
+data class CommonItemApiResource(
     @SerializedName("name") val name: String,
-    @SerializedName("url") val url: String,
-    val id: Int,
-    val sprite: String
+    @SerializedName("url") val url: String
 )
