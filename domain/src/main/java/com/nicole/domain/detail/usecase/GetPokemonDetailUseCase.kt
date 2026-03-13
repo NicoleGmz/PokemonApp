@@ -8,7 +8,6 @@ class GetPokemonDetailUseCase(
 ) {
 
     suspend operator fun invoke(id: Int): PokemonDetail{
-    //    val pokemon = repository.getPokemonById(id)
         return repository.getPokemonById(id)
     }
 }

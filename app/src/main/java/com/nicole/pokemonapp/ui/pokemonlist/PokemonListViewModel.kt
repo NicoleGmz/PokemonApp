@@ -10,7 +10,6 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.nicole.domain.list.usecase.GetPagePokemonListUseCase
 import com.nicole.domain.list.usecase.GetPokemonGenerationListUseCase
-import com.nicole.domain.list.usecase.GetPokemonListUseCase
 import com.nicole.domain.list.usecase.GetPokemonTypeListUseCase
 import com.nicole.pokemonapp.ui.pokemonlist.model.PokemonItemUiState
 import com.nicole.pokemonapp.ui.pokemonlist.model.PokemonListUiState
@@ -33,7 +32,6 @@ import javax.inject.Inject
 class PokemonListViewModel @Inject constructor(
     private val getPokemonTypeList: GetPokemonTypeListUseCase,
     private val getPokemonGenerationList: GetPokemonGenerationListUseCase,
-    private val getPokemonList: GetPokemonListUseCase,
     private val getPagedPokemonList: GetPagePokemonListUseCase
 ) : ViewModel() {
 
@@ -119,7 +117,6 @@ class PokemonListViewModel @Inject constructor(
     init{
         loadTypes()
         loadGenerations()
-        loadPokemonList()
     }
 
     private fun loadTypes() {
@@ -137,15 +134,6 @@ class PokemonListViewModel @Inject constructor(
             allGenerations = getPokemonGenerationList()
         }
     }
-
-    private fun loadPokemonList() {
-        viewModelScope.launch {
-            println("PokemonListViewModel init")
-            _allPokemon.value = getPokemonList().toUiState()
-        }
-    }
-
-
 
     fun onSearchQueryChanged(newQuery: String){
         _searchQuery.value = newQuery

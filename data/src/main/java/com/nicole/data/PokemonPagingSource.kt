@@ -2,12 +2,12 @@ package com.nicole.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.nicole.data.mappers.toDomain
 import com.nicole.data.mappers.toDomainListItem
 import com.nicole.domain.list.model.PokemonItem
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
 
 class PokemonPagingSource(
     private val api: PokemonApi,
@@ -17,11 +17,11 @@ class PokemonPagingSource(
 ) : PagingSource<Int, PokemonItem>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PokemonItem> {
-        //val page = params.key ?: 0
         val pageSize = params.loadSize
         val offset = params.key ?: 0
 
         if (typeFilter.size > 2) {
+            Timber.d("Type filter size is greater than 2")
             return LoadResult.Page(
                 emptyList(),
                 prevKey = null,
@@ -52,11 +52,6 @@ class PokemonPagingSource(
                         ?: pokemonOfThisType
                 }
                 validIds = combinedTypeIds
-
-                /*val typeResponse = api.getPokemonByType(typeFilter.lowercase())
-                val pokemonOfThisType = typeResponse.pokemon
-
-                validNames = pokemonOfThisType*/
             }
 
             if (generationFilter.isNotEmpty()) {
@@ -102,25 +97,7 @@ class PokemonPagingSource(
                     }.toSet()
 
                 validIds = validIds?.intersect(searchIds) ?: searchIds
-
-                /*val end = minOf(offset + pageSize, matchedNames.size)
-
-                if (offset < matchedNames.size) {
-                    itemsToFetch.addAll(matchedNames.subList(offset, end))
-                }*/
-                /*if(page > 0) return LoadResult.Page(emptyList(), prevKey = null, nextKey = null)
-
-                itemsToFetch.add(searchQuery.lowercase().trim())*/
-            } /*else if(typeFilter.isNotBlank()) {
-
-                val typeResponse = api.getPokemonByType(typeFilter.lowercase())
-                val pokemonOfThisType = typeResponse.pokemon.map { it.name }
-                val end = minOf(offset + pageSize, pokemonOfThisType.size)
-                if(offset < pokemonOfThisType.size){
-                    itemsToFetch.addAll(pokemonOfThisType.subList(offset, end))
-                }
-
-            }*/
+            }
 
             if (validIds != null) {
                 val sortedIds = validIds.sorted()
@@ -164,6 +141,7 @@ class PokemonPagingSource(
                 nextKey = nextKey
             )
         } catch (e: Exception) {
+            Timber.e("Error getting pokemon list: ${e.message}")
             LoadResult.Error(e)
         }
     }
@@ -175,7 +153,7 @@ class PokemonPagingSource(
         }
     }
 
-    fun String.extractIdFromUrl(): Int{
-        return this.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0
-    }
+    fun String.extractIdFromUrl(): Int =
+        this.trimEnd('/').substringAfterLast('/').toIntOrNull() ?: 0
+
 }

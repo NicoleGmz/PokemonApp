@@ -3,7 +3,6 @@ package com.nicole.pokemonapp.di.list
 import com.nicole.domain.PokemonRepository
 import com.nicole.domain.list.usecase.GetPagePokemonListUseCase
 import com.nicole.domain.list.usecase.GetPokemonGenerationListUseCase
-import com.nicole.domain.list.usecase.GetPokemonListUseCase
 import com.nicole.domain.list.usecase.GetPokemonTypeListUseCase
 import dagger.Module
 import dagger.Provides
@@ -23,11 +22,6 @@ object PokemonListDomainModule {
     fun provideGetPokemonGenerationListUseCase(
         repository: PokemonRepository
     ) = GetPokemonGenerationListUseCase(repository)
-
-    @Provides
-    fun provideGetPokemonListUseCase(
-        repository: PokemonRepository
-    ) = GetPokemonListUseCase(repository)
 
     @Provides
     fun provideGetPagePokemonListUseCase(
