@@ -32,6 +32,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
 }
 kotlin {
     jvmToolchain(17)
@@ -46,6 +50,7 @@ dependencies {
     implementation(libs.retrofit.converter)
     implementation(libs.retrofit.serialization)
     implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
     implementation(libs.paging.runtime)
     implementation(libs.timber)
     ksp(libs.hilt.compiler)

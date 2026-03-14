@@ -25,8 +25,7 @@ class PokemonRepositoryImpl @Inject constructor(
         Timber.d("Getting pokemon generation list")
         val generationList = api.getGenerationList().results
         return generationList.map {
-            val generation = formatGenerationName(it.name)
-            formatGenerationName(generation)
+            formatGenerationName(it.name)
         }
     }
 

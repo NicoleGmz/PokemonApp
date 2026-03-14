@@ -115,10 +115,10 @@ class PokemonPagingSource(
         return combinedTypeIds
     }
 
-    private suspend fun getValidIdsForGeneration(generation: Set<String>): Set<Int> {
+    private suspend fun getValidIdsForGeneration(generations: Set<String>): Set<Int> {
         val combinedGenerationIds = mutableSetOf<Int>()
 
-        for (generation in generation) {
+        for (generation in generations) {
             val genFormatted = generation.lowercase().replace(" ", "-")
             val generationResponse = api.getGeneration(genFormatted)
             val generationIds = generationResponse.pokemonSpecies.mapNotNull {
