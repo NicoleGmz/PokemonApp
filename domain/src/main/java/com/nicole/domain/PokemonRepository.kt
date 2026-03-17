@@ -11,7 +11,7 @@ interface PokemonRepository {
 
     suspend fun getPokemonGenerationList(): List<String>
 
-    suspend fun getPagedPokemonList(
+    fun getPagedPokemonList(
         searchQuery: String,
         typeFilter: Set<String>,
         generationFilter: Set<String>

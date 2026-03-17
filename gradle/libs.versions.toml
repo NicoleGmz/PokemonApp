@@ -30,6 +30,7 @@ material = "1.10.0"
 coil = "3.3.0"
 paging = "3.4.1"
 animationCore = "1.10.4"
+javax = "1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -65,6 +66,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
 paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }
 paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "paging" }
+javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javax" }
 
 
 # Test libs

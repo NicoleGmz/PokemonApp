@@ -29,7 +29,7 @@ class PokemonRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPagedPokemonList(
+    override fun getPagedPokemonList(
         searchQuery: String,
         typeFilter: Set<String>,
         generationFilter: Set<String>

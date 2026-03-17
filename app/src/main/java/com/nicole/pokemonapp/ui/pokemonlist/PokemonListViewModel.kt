@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.nicole.domain.list.usecase.GetPagePokemonListUseCase
+import com.nicole.domain.list.usecase.GetPagedPokemonListUseCase
 import com.nicole.domain.list.usecase.GetPokemonGenerationListUseCase
 import com.nicole.domain.list.usecase.GetPokemonTypeListUseCase
 import com.nicole.pokemonapp.ui.pokemonlist.model.PokemonItemUiState
@@ -32,7 +32,7 @@ import javax.inject.Inject
 class PokemonListViewModel @Inject constructor(
     private val getPokemonTypeList: GetPokemonTypeListUseCase,
     private val getPokemonGenerationList: GetPokemonGenerationListUseCase,
-    private val getPagedPokemonList: GetPagePokemonListUseCase
+    private val getPagedPokemonList: GetPagedPokemonListUseCase
 ) : ViewModel() {
 
     private val _allPokemon = MutableStateFlow(PokemonListUiState.DEFAULT)

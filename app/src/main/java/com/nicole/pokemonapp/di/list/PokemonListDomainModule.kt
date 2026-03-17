@@ -1,7 +1,7 @@
 package com.nicole.pokemonapp.di.list
 
 import com.nicole.domain.PokemonRepository
-import com.nicole.domain.list.usecase.GetPagePokemonListUseCase
+import com.nicole.domain.list.usecase.GetPagedPokemonListUseCase
 import com.nicole.domain.list.usecase.GetPokemonGenerationListUseCase
 import com.nicole.domain.list.usecase.GetPokemonTypeListUseCase
 import dagger.Module
@@ -26,6 +26,6 @@ object PokemonListDomainModule {
     @Provides
     fun provideGetPagePokemonListUseCase(
         repository: PokemonRepository
-    ) = GetPagePokemonListUseCase(repository)
+    ) = GetPagedPokemonListUseCase(repository)
 
 }

@@ -4,12 +4,13 @@ import androidx.paging.PagingData
 import com.nicole.domain.PokemonRepository
 import com.nicole.domain.list.model.PokemonItem
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class GetPagePokemonListUseCase(
+class GetPagedPokemonListUseCase @Inject constructor(
     private val repository: PokemonRepository
 ){
 
-    suspend operator fun invoke(
+    operator fun invoke(
         searchQuery: String,
         typeFilter: Set<String>,
         generationFilter: Set<String>
