@@ -1,5 +1,7 @@
-package com.nicole.data
+package com.nicole.data.di
 
+import com.nicole.data.BuildConfig
+import com.nicole.data.PokemonApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,7 +36,7 @@ object NetworkConnection {
 
     @Provides
     @Singleton
-    fun providesRetrofit(okHttpClient: OkHttpClient): Retrofit{
+    fun providesRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
@@ -44,7 +46,7 @@ object NetworkConnection {
 
     @Provides
     @Singleton
-    fun providesPokemonApi(retrofit: Retrofit): PokemonApi{
+    fun providesPokemonApi(retrofit: Retrofit): PokemonApi {
         return retrofit.create(PokemonApi::class.java)
     }
 }
